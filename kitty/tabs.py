@@ -1786,6 +1786,14 @@ class TabManager:  # {{{
             if tab.has_indeterminate_progress:
                 self.has_indeterminate_progress = True
         get_boss().update_progress_in_dock()
+        from .fast_data_types import set_os_window_progress
+        if self.num_of_windows_with_progress:
+            percent = min(100, self.total_progress // self.num_of_windows_with_progress)
+            set_os_window_progress(self.os_window_id, percent, 1)
+        elif self.has_indeterminate_progress:
+            set_os_window_progress(self.os_window_id, -1, 3)
+        else:
+            set_os_window_progress(self.os_window_id, -1, 0)
 
     @property
     def tab_bar_rects(self) -> tuple[Border, ...]:

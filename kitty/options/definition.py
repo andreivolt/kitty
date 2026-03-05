@@ -519,6 +519,12 @@ use the current selection background color. Also, you can use an
 arbitrary color, such as :code:`#12af59` or :code:`red`.
 ''')
 
+opt('progress_bar_color', '#56b6c2', option_type='scrollbar_color', ctype='uint', long_text='''
+The color of the progress bar shown at the bottom of the tab bar when a
+program reports progress via the OSC 9;4 escape sequence. You can use an
+arbitrary color, such as :code:`#12af59` or :code:`red`.
+''')
+
 opt('scrollback_pager', 'less --chop-long-lines --RAW-CONTROL-CHARS +INPUT_LINE_NUMBER',
     option_type='to_cmdline',
     long_text='''

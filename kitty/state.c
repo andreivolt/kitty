@@ -864,6 +864,18 @@ PYWRAP1(set_tab_bar_render_data) {
     Py_RETURN_NONE;
 }
 
+PYWRAP1(set_os_window_progress) {
+    id_type os_window_id;
+    int percent, state;
+    PA("Kii", &os_window_id, &percent, &state);
+    WITH_OS_WINDOW(os_window_id)
+        os_window->progress.percent = percent;
+        os_window->progress.state = state;
+        os_window->needs_render = true;
+    END_WITH_OS_WINDOW
+    Py_RETURN_NONE;
+}
+
 PYWRAP1(set_window_title_bar_render_data) {
     WindowGeometry g;
     id_type os_window_id, tab_id, window_id;
@@ -1612,6 +1624,7 @@ static PyMethodDef module_methods[] = {
     MW(reorder_tabs, METH_VARARGS),
     MW(set_borders_rects, METH_VARARGS),
     MW(set_tab_bar_render_data, METH_VARARGS),
+    MW(set_os_window_progress, METH_VARARGS),
     MW(set_window_title_bar_render_data, METH_VARARGS),
     MW(set_window_render_data, METH_VARARGS),
     MW(set_window_padding, METH_VARARGS),
