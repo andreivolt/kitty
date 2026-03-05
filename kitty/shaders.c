@@ -1036,6 +1036,46 @@ draw_scrollbar(const UIRenderData *ui) {
     }
 }
 
+void
+draw_progress_bar(OSWindow *os_window) {
+    if (os_window->progress.state == 0) return;  // ProgressState.unset
+    unsigned bar_height = 3;
+    unsigned bar_left, bar_top, bar_full_width;
+    WindowRenderData *td = &os_window->tab_bar_render_data;
+    if (td->screen && td->geometry.right > td->geometry.left) {
+        // Draw at bottom of tab bar
+        bar_left = td->geometry.left;
+        bar_top = td->geometry.bottom - bar_height;
+        bar_full_width = td->geometry.right - td->geometry.left;
+    } else {
+        // No tab bar visible — draw at bottom of viewport
+        bar_left = 0;
+        bar_top = os_window->viewport_height - bar_height;
+        bar_full_width = os_window->viewport_width;
+    }
+    if (bar_full_width == 0) return;
+    unsigned fill_width;
+    if (os_window->progress.state == 3) {  // indeterminate
+        fill_width = bar_full_width;
+    } else {
+        int pct = os_window->progress.percent;
+        if (pct <= 0) return;
+        fill_width = (unsigned)((float)bar_full_width * pct / 100.f);
+        if (fill_width == 0) fill_width = 1;
+    }
+    color_type color = OPT(progress_bar_color);
+    if (os_window->progress.state == 2) color = 0xff0000;  // error: red
+    save_viewport_using_top_left_origin(
+        bar_left, bar_top, fill_width, bar_height,
+        os_window->viewport_height
+    );
+    bind_program(TINT_PROGRAM);
+    set_color_uniform_with_opacity(color, 1.0f);
+    glUniform4f(tint_program_layout.uniforms.edges, -1.f, 1.f, 1.f, -1.f);
+    draw_quad(true, 0);
+    restore_viewport();
+}
+
 static void
 draw_window_logo(const UIRenderData *ui) {
     struct { unsigned width, height; int left, top; } w;

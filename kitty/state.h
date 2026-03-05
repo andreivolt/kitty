@@ -79,6 +79,7 @@ typedef struct Options {
     float scrollbar_width, scrollbar_radius, scrollbar_gap, scrollbar_min_handle_height, scrollbar_hitbox_expansion;
     float scrollbar_hover_width, scrollbar_handle_opacity, scrollbar_track_opacity, scrollbar_track_hover_opacity;
     color_type scrollbar_handle_color, scrollbar_track_color;
+    color_type progress_bar_color;
 
     float text_contrast, text_gamma_adjustment;
     bool text_old_gamma;
@@ -350,6 +351,7 @@ typedef struct OSWindow {
     CloseRequest close_request;
     bool is_layer_shell, hide_on_focus_loss;
     struct { int x, y; } last_drag_event;
+    struct { int percent; int state; } progress;
 } OSWindow;
 
 static inline float
@@ -459,6 +461,7 @@ ssize_t create_graphics_vao(void);
 ssize_t create_border_vao(void);
 bool send_cell_data_to_gpu(ssize_t, Screen *, OSWindow *);
 void draw_cells(const WindowRenderData*, OSWindow *, bool, bool, bool, Window*);
+void draw_progress_bar(OSWindow *os_window);
 bool update_cursor_trail(CursorTrail *ct, Window *w, monotonic_t now, OSWindow *os_window);
 void set_gpu_viewport(unsigned w, unsigned h);
 void free_texture(uint32_t*);

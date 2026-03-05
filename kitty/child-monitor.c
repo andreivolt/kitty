@@ -883,6 +883,7 @@ render_prepared_os_window(OSWindow *os_window, unsigned int active_window_id, co
         }
     }
     setup_os_window_for_rendering(os_window, tab, active_window, false);
+    draw_progress_bar(os_window);
     if (global_state.thumbnail_callback.os_window == os_window->id) {
         thumbnail_callback(os_window);
         global_state.thumbnail_callback.os_window = 0;

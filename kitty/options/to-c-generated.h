@@ -435,6 +435,19 @@ convert_from_opts_scrollbar_track_color(PyObject *py_opts, Options *opts) {
 }
 
 static void
+convert_from_python_progress_bar_color(PyObject *val, Options *opts) {
+    opts->progress_bar_color = PyLong_AsUnsignedLong(val);
+}
+
+static void
+convert_from_opts_progress_bar_color(PyObject *py_opts, Options *opts) {
+    PyObject *ret = PyObject_GetAttrString(py_opts, "progress_bar_color");
+    if (ret == NULL) return;
+    convert_from_python_progress_bar_color(ret, opts);
+    Py_DECREF(ret);
+}
+
+static void
 convert_from_python_scrollback_pager_history_size(PyObject *val, Options *opts) {
     opts->scrollback_pager_history_size = PyLong_AsUnsignedLong(val);
 }
@@ -1515,6 +1528,8 @@ convert_opts_from_python_opts(PyObject *py_opts, Options *opts) {
     convert_from_opts_scrollbar_handle_color(py_opts, opts);
     if (PyErr_Occurred()) return false;
     convert_from_opts_scrollbar_track_color(py_opts, opts);
+    if (PyErr_Occurred()) return false;
+    convert_from_opts_progress_bar_color(py_opts, opts);
     if (PyErr_Occurred()) return false;
     convert_from_opts_scrollback_pager_history_size(py_opts, opts);
     if (PyErr_Occurred()) return false;
