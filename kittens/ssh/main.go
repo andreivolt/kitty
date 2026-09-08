@@ -791,7 +791,10 @@ func run_ssh(ssh_args, server_args, found_extra_args []string) (rc int, err erro
 		// and we are waiting on that.
 	}()
 	err = c.Wait()
-	drain_potential_tty_garbage(term)
+	// The drain exists for sessions that died before the remote bootstrap could read the data kitty wrote into the tty, so that data does not fall through to the shell. After a clean exit the bootstrap has consumed all of it, and running the canary round-trip anyway is itself a hazard: kitty answers the echo from Python on its main thread, and when that thread is stalled (swap pressure, a blocked watcher) the reply arrives after the two second wait has given up and the tty is restored, so the canary is typed into the shell as if the user had entered it.
+	if err != nil {
+		drain_potential_tty_garbage(term)
+	}
 	if err != nil {
 		var exit_err *exec.ExitError
 		if errors.As(err, &exit_err) {

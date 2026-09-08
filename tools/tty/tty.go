@@ -265,14 +265,23 @@ func clamp(v, lo, hi int64) int64 {
 
 func (self *Term) ReadWithTimeout(b []byte, d time.Duration) (n int, err error) {
 	var read, write, in_err unix.FdSet
+	// pselect is not restarted by the kernel after a signal handler runs, and the Go runtime installs handlers for nearly every signal, so a SIGWINCH or SIGCHLD landing on this thread surfaces as EINTR. Retry against the original deadline instead of reporting a spurious read failure; a negative d keeps meaning no timeout.
+	deadline := time.Now().Add(d)
 	pselect := func() (int, error) {
 		read.Zero()
 		write.Zero()
 		in_err.Zero()
 		read.Set(self.Fd())
-		return utils.Select(self.Fd()+1, &read, &write, &in_err, d)
+		timeout := d
+		if d >= 0 {
+			timeout = max(0, time.Until(deadline))
+		}
+		return utils.Select(self.Fd()+1, &read, &write, &in_err, timeout)
 	}
 	num_ready, err := pselect()
+	for errors.Is(err, unix.EINTR) {
+		num_ready, err = pselect()
+	}
 	if err != nil {
 		return 0, err
 	}
